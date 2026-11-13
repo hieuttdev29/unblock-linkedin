@@ -1,8 +1,13 @@
 # unblock-linkedin
 
-Script tự động mở khóa **LinkedIn** trên máy **Windows** khi mạng công ty chặn LinkedIn bằng **DNS sinkhole** (phân giải `linkedin.com` về `127.0.0.1`).
+Script tự động mở khóa **LinkedIn** và **Outlook** (https://outlook.live.com) khi mạng công ty chặn các trang này.
 
-Script thêm IP thật của LinkedIn vào file `hosts` của máy và xóa cache DNS — chạy **một lần**, không cần cài gì thêm. Hỗ trợ **Windows** và **macOS**.
+| Trang | Windows | macOS |
+|---|---|---|
+| LinkedIn | `unblock-linkedin.bat` | `unblock-linkedin.command` |
+| Outlook | `unblock-outlook.bat` | `unblock-outlook.command` |
+
+Script thêm IP còn truy cập được vào file `hosts` của máy và xóa cache DNS — chạy **một lần**, không cần cài gì thêm. Hỗ trợ **Windows** và **macOS**. Cách dùng file Outlook giống hệt file LinkedIn bên dưới (chỉ khác tên file).
 
 ---
 
@@ -57,6 +62,24 @@ bash ~/Downloads/unblock-linkedin.command
    ```
 3. Chạy `ipconfig /flushdns` để có hiệu lực ngay.
 
+### Script Outlook
+
+Gateway chặn Outlook theo **IP**: các IP Outlook mà DNS trả về (dải châu Á như `40.99.x`, `52.98.x`, `40.104.x`) bị drop cổng 443, nhưng IP Outlook ở vùng khác vẫn vào được. Script trỏ các domain Outlook về `40.100.4.200`:
+
+```
+# Outlook-unblock
+40.100.4.200 outlook.live.com
+40.100.4.200 outlook.com
+40.100.4.200 www.outlook.com
+40.100.4.200 outlook.office.com
+40.100.4.200 outlook.office365.com
+40.100.4.200 outlook.cloud.microsoft
+40.100.4.200 substrate.office.com
+40.100.4.200 attachments.office.net
+```
+
+IP dự phòng (đã test 13/11/2026): `52.98.207.2`, `40.98.16.48`, `40.98.16.75`. Nếu IP chính hết tác dụng, sửa dòng `IP=...` trong script, xóa khối `# Outlook-unblock` cũ trong `hosts` rồi chạy lại.
+
 ---
 
 ## ⚠️ Lưu ý quan trọng
@@ -68,11 +91,11 @@ bash ~/Downloads/unblock-linkedin.command
     ```
   - Sửa dòng `set "IP=..."` trong file `.bat` rồi chạy lại.
 - **Tầng lọc SNI:** nếu gateway công ty còn chặn theo **SNI (DPI)**, một số máy có thể vẫn bị chập chờn (reset / 403). Trường hợp này `hosts` không xử lý được.
-- **Giải pháp bền vững:** đề nghị IT **whitelist `*.linkedin.com`** trên thiết bị gateway (Ruijie) — fix 1 lần cho toàn bộ máy, không cần bảo trì, xử lý cả DNS lẫn SNI.
+- **Giải pháp bền vững:** đề nghị IT **whitelist `*.linkedin.com`, `outlook.live.com`, `*.outlook.com`, `*.office.com`, `*.office365.com`** trên thiết bị gateway (Ruijie) — fix 1 lần cho toàn bộ máy, không cần bảo trì, xử lý cả DNS lẫn SNI.
 
 ---
 
 ## 🧹 Gỡ bỏ (hoàn tác)
 
-- **Windows:** mở `hosts` bằng Notepad (Run as administrator), xóa khối bắt đầu bằng `# LinkedIn-unblock`, lưu lại, rồi chạy `ipconfig /flushdns`.
-- **macOS:** mở Terminal, chạy `sudo nano /etc/hosts`, xóa khối `# LinkedIn-unblock`, lưu (Ctrl+O, Enter, Ctrl+X), rồi chạy `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`.
+- **Windows:** mở `hosts` bằng Notepad (Run as administrator), xóa khối bắt đầu bằng `# LinkedIn-unblock` (hoặc `# Outlook-unblock`), lưu lại, rồi chạy `ipconfig /flushdns`.
+- **macOS:** mở Terminal, chạy `sudo nano /etc/hosts`, xóa khối `# LinkedIn-unblock` (hoặc `# Outlook-unblock`), lưu (Ctrl+O, Enter, Ctrl+X), rồi chạy `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`.
